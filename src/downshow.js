@@ -25,14 +25,9 @@
  * - Find a cleaner way to handle the ">" character in blockquotes.
  */
 
-(function (exports) {
+(function () {
+  var global = this;
   var doc;
-  try {
-    doc = document;
-  } catch(e) {
-    var jsdom = require("jsdom").jsdom;
-    doc = jsdom("<html><head></head><body></body></html>");
-  }
 
   /**
    * Returns every element in root in their bfs traversal order.
@@ -153,7 +148,7 @@
       setContent(node, node.innerHTML);
   }
 
-  exports.downshow = function (html) {
+  function downshow(html) {
     var root = doc.createElement('pre');
     root.innerHTML = html;
     var elements = bfsOrder(root).reverse();
@@ -171,5 +166,20 @@
       /* .replace(/\n((?:> )+[ ]*\n)+/g, '\n') */
       // remove extra newlines
       .replace(/\n\n\n+/g,'\n\n')+'\n';
-  };
-})('undefined' !== typeof exports && exports || window);
+  }
+
+  try {
+    doc = document;
+  } catch(e) {
+    var jsdom = require("jsdom").jsdom;
+    doc = jsdom("<html><head></head><body></body></html>");
+  }
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      exports = module.exports = downshow;
+    }
+    exports.downshow = downshow;
+  } else {
+    global.downshow = downshow;
+  }
+}).call(this);
