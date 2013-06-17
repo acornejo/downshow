@@ -51,3 +51,15 @@ their class and style attributes).
 At the moment this functionality is not implemented (since I have no use
 for it). However, if there is interest I can add this as an option to
 the library.
+
+### Server-side usage
+
+Install via npm (it requires jsdom).
+
+    $ npm install downshow
+
+Then include and use as at will in your own projects.
+
+```js
+var downshow = require('downshow');
+console.log(downshow('Hello <b>world</b>!'));
