@@ -2,9 +2,15 @@
 
 A simple JavaScript library to convert HTML to markdown.
 
-This library has no external dependencies, and has been tested to work
+This library has no external dependencies, and has been tested 
 in Chrome, Safari and Firefox. It probably works with Internet Explorer,
 but your milage may vary.
+
+It relies on javascript's DOM to parse the input HTML and produce the markdown
+output.  In more detail, the DOM tree is processed in reverse breadth
+first search order, translating each supported Element to its markdown
+equivalent. Element attributes are ignored, and unsupported elements are
+stripped out.
 
 The source code is released under the MIT license, and therefore places
 almost no restrictions on what you can do with it.
