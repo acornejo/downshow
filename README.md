@@ -6,7 +6,7 @@ This library has no external dependencies, and has been tested
 in Chrome, Safari and Firefox. It probably works with Internet Explorer,
 but your milage may vary.
 
-Downshow is **tiny!**, only 2.4kb minified and &gt; 1kb gzip'ed.
+Downshow is **tiny!**, only 2.4kb minified and &lt; 1kb gzip'ed.
 
 It relies on javascript's DOM to parse the input HTML and produce the markdown
 output.  In more detail, the DOM tree is processed in reverse breadth
