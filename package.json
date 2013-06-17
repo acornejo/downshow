@@ -1,0 +1,17 @@
+{
+  "name": "downshow",
+  "version": "0.1.0",
+  "author": "Alex Cornejo",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-uglify": "~0.2.2"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/acornejo/downshow/raw/master/LICENSE"
+    }
+  ],
+  "main": "./src/downshow"
+}
