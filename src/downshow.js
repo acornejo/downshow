@@ -26,6 +26,14 @@
  */
 
 (function (exports) {
+  var doc;
+  try {
+    doc = document;
+  } catch(e) {
+    var jsdom = require("jsdom").jsdom;
+    doc = jsdom("<html><head></head><body></body></html>");
+  }
+
   /**
    * Returns every element in root in their bfs traversal order.
    *
@@ -92,7 +100,7 @@
    * Set the node's content.
    * */
   function setContent(node, content) {
-    node._bfs_parent.replaceChild(document.createTextNode(content), node);
+    node._bfs_parent.replaceChild(doc.createTextNode(content), node);
   }
 
   /**
@@ -146,7 +154,7 @@
   }
 
   exports.downshow = function (html) {
-    var root = document.createElement('pre');
+    var root = doc.createElement('pre');
     root.innerHTML = html;
     var elements = bfsOrder(root).reverse();
 
