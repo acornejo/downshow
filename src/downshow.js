@@ -145,10 +145,10 @@
       else
         setContent(node, '');
     } else if (node.tagName === 'BLOCKQUOTE') {
-      var content = trim(node.innerHTML);
+      var block_content = trim(node.innerHTML);
       // Cannot use setContent because '>' symbol gets translated.
-      if (content.length > 0)
-        node.outerHTML =  '\n\n' +  prefixBlock('> ', trim(node.innerHTML)) + '\n\n';
+      if (block_content.length > 0)
+        node.outerHTML =  '\n\n' +  prefixBlock('> ', block_content) + '\n\n';
       else
         setContent(node, '');
     } else if (node.tagName === 'UL' || node.tagName === 'OL') 
@@ -159,12 +159,12 @@
       else
         setContent(node, nltrim(node.innerHTML), '`', '`');
     } else if (node.tagName === 'LI') {
-      var content = trim(node.innerHTML);
-      if (content.length > 0)
+      var list_content = trim(node.innerHTML);
+      if (list_content.length > 0)
         if (node._bfs_parent.tagName === 'OL') 
-          setContent(node, '1. ' + trim(prefixBlock('    ', content, true)) + '\n\n');
+          setContent(node, '1. ' + trim(prefixBlock('    ', list_content, true)) + '\n\n');
         else
-          setContent(node, '- ' +  trim(prefixBlock('    ', content, true)) + '\n\n');
+          setContent(node, '- ' +  trim(prefixBlock('    ', list_content, true)) + '\n\n');
       else
         setContent(node, '');
     } else 
