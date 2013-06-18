@@ -38,6 +38,7 @@
    */
   function bfsOrder(root) {
     var inqueue = [root], outqueue = [];
+    root._bfs_root = true;
     while (inqueue.length > 0) {
       var elem = inqueue.shift();
       outqueue.push(elem);
@@ -62,15 +63,15 @@
   }
 
   /**
-   * Remove whitespace and newlines from beginning and end of a stirng.
+   * Remove whitespace and newlines from beginning and end of a sting,
+   * as well as removing repeated whitespace between words.
    */
   function trim(str) {
-    return str.replace(/^\s\s*/,'').replace(/\s\s*$/, '');
+    return str.replace(/^\s\s*/,'').replace(/\s\s*$/, '').replace(/([^\s]+)[ \t]+([^\s]+)/g, '$1 $2');
   }
 
   /**
-   * Remove all newlines, and all whitespace from the
-   * beginning and the end of
+   * Remove all newlines and trims the resulting string.
    * */ 
   function nltrim(str) {
     return trim(str.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n/g, ' '));
@@ -110,7 +111,7 @@
    * */
   function processNode(node) {
     if (node.tagName === 'P' || node.tagName === 'DIV')
-      setContent(node, '\n\n' + node.innerHTML + '\n');
+      setContent(node, '\n\n' + trim(node.innerHTML) + '\n\n');
     else if (node.tagName === 'BR')
       setContent(node, '\n\n');
     else if (node.tagName === 'HR')
@@ -139,7 +140,7 @@
         setContent(node, '');
     } else if (node.tagName === 'IMG') {
       var src = nltrim(node.src), alt = nltrim(node.alt), caption = nltrim(node.title);
-      if (src)
+      if (src.length > 0)
         setContent(node, '![' + alt + '](' + src  + (caption ? ' "' + caption + '"' : '') + ')');
       else
         setContent(node, '');
@@ -153,17 +154,21 @@
     } else if (node.tagName === 'UL' || node.tagName === 'OL') 
       setContent(node, '\n\n' + node.innerHTML + '\n\n');
     else if (node.tagName === 'CODE') {
-      if (node._bfs_parent.tagName == 'PRE') 
+      if (node._bfs_parent.tagName == 'PRE' && node._bfs_parent._bfs_root !== true) 
         setContent(node, prefixBlock('    ', node.innerHTML) + '\n');
       else
         setContent(node, nltrim(node.innerHTML), '`', '`');
     } else if (node.tagName === 'LI') {
-      if (node._bfs_parent.tagName === 'OL') 
-        setContent(node, '1. ' + trim(prefixBlock('    ', trim(node.innerHTML), true)) + '\n\n');
+      var content = trim(node.innerHTML);
+      if (content.length > 0)
+        if (node._bfs_parent.tagName === 'OL') 
+          setContent(node, '1. ' + trim(prefixBlock('    ', content, true)) + '\n\n');
+        else
+          setContent(node, '- ' +  trim(prefixBlock('    ', content, true)) + '\n\n');
       else
-        setContent(node, '- ' +  trim(prefixBlock('    ', trim(node.innerHTML), true)) + '\n\n');
+        setContent(node, '');
     } else 
-      setContent(node, node.innerHTML);
+      setContent(node, node.innerHTML, ' ', ' ');
   }
 
   function downshow(html, options) {
@@ -185,15 +190,19 @@
       }
     }
 
-    return trim(root.innerHTML)
+    return root.innerHTML
       // replace &gt; for > in blockquotes
-      .replace(/\n(&gt; )+/g, function (match) { return match.replace(/&gt;/g,'>'); })
+      .replace(/^(&gt; )+/gm, function (match) { return match.replace(/&gt;/g,'>'); })
       // remove empty lines between blockquotes
       .replace(/(\n(?:> )+[^\n]*)\n+(\n(?:> )+)/g, "$1\n$2")
       // remove empty blockquotes
       .replace(/\n((?:> )+[ ]*\n)+/g, '\n\n')
       // remove extra newlines
-      .replace(/\n\n\n+/g,'\n\n');
+      .replace(/\n[ \t]*(?:\n[ \t]*)+\n/g,'\n\n')
+      // remove trailing whitespace
+      .replace(/\s\s*$/, '')
+      // remove starting newlines
+      .replace(/^\n\n*/, '');
   }
 
   try {
