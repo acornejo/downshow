@@ -44,12 +44,14 @@ Install via npm (it requires jsdom).
 
     $ npm install downshow
 
-Then include and use as at will in your own projects.
+That is it!, the downshow module is ready to be used in your own nodejs
+projects. For example:
 
-```js
-var downshow = require('downshow');
-console.log(downshow('Hello <b>world</b>!'));
-```
+    $ echo 'var downshow=require("downshow"); console.log(downshow("Hello <b>world</b>!"));' | node
+
+Which produces
+
+`Hello **world**!`
 
 ### Extending Markdown Syntax
 
