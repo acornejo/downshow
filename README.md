@@ -38,22 +38,6 @@ var markdown = showdown(html_content);
 console.log(markdown);
 ```
 
-## Uses and Limitations
-
-One of the main uses of converting HTML to markdown, is to avoid the
-security considerations that arise when storing and manipulating raw
-HTML which was produced by an (untrusted) third party.
-
-With this in mind, downshow will strip any HTML tags from its output and
-produce a safe subset of Markdown which contains no HTML markup. It
-would be easy to overrride this behavior and allow certain tags and
-attributes to be passed along (for instance, allow span/div tags with
-their class and style attributes).
-
-At the moment this functionality is not implemented (since I have no use
-for it). However, if there is interest I can add this as an option to
-the library.
-
 ### Server-side usage
 
 Install via npm (it requires jsdom).
@@ -65,3 +49,82 @@ Then include and use as at will in your own projects.
 ```js
 var downshow = require('downshow');
 console.log(downshow('Hello <b>world</b>!'));
+
+### Extending Markdown Syntax
+
+By creating a custom node parser it is possible to change the way the
+HTML is processed and converted to markdown, or to extend the markdown
+syntax.
+
+To illustrate this, consider the following HTML fragment.
+
+```html
+<div id="content">
+    Regular text.<br/>
+    <b>Bold text</b><br/>
+    <em>Italics text</em><br/>
+    <u>Underlined text</u><br/>
+    <span class="underline">More underlined text</span>
+</div>
+```
+
+If we run it through downshow we see the following output.
+
+```md
+Regular text.
+**Bold text**
+_Italics text_
+Underlined text
+More underlined text
+```
+
+Since the vanilla markdown syntax does not support underlined text, the
+html tags were ignored and stripped from the output.
+
+The next javascript fragment extends the markdown syntax to allow
+underline text by wrapping it with the $ character.
+
+
+```js
+function nodeParser(doc, node) {
+  bool underline = false;
+  if (node.tagName === 'U')
+      underline = true;
+  else if (node.tagName === 'SPAN') {
+    var classlist = ' ' + node.className + ' ';
+    if (classlist.indexOf('underline') != -1) {
+      underline = true;
+    }
+  }
+  if (underline === true)
+      return doc.createTextNode('$' + node.innerHTML + '$');
+  return false;
+}
+```
+
+To run downshow using the custom nodeParser we use:
+
+    downshow(html_content, {nodeParser: nodeParser});
+
+The output now is:
+
+```md
+Regular text.
+**Bold text**
+_Italics text_
+$Underlined text$
+$More underlined text$
+```
+
+## Uses and Limitations
+
+Perhaps the main uses of converting HTML to markdown is to avoid the
+security considerations that arise when storing and manipulating raw
+HTML which was produced by an (untrusted) third party.
+
+For this purpose downshow will strip all HTML tags from its output and
+produce a safe subset of Markdown which contains no HTML markup. 
+
+Using the nodeParser option it is possible to allow certain tags and
+attributes to be passed through to the markdown output. However, this
+will only work for toplevel elements.

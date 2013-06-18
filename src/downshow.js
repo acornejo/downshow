@@ -173,11 +173,11 @@
 
     if (options && options.nodeParser) {
       for (var i = 0; i<nodes.length; i++) {
-        var result = options.nodeParser(doc, nodes[i].cloeNode(true));
+        var result = options.nodeParser(doc, nodes[i].cloneNode(true));
         if (result === false)
           processNode(nodes[i]);
         else 
-          nodes[i]._bfs_parent.replaceChild(nodes[i], result);
+          nodes[i]._bfs_parent.replaceChild(result, nodes[i]);
       }
     } else {
       for (var i = 0; i<nodes.length; i++) {
