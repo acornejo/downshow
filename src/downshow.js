@@ -1,7 +1,7 @@
 /**
  * downshow.js -- A javascript library to convert HTML to markdown.
  *
- *  Copyright (c) 2013 Alejandro Cornejo.
+ *  Copyright (c) 2013 Alex Cornejo.
  *
  *  Original Markdown Copyright (c) 2004-2005 John Gruber
  *    <http://darlingfireball.net/projects/markdown/>
@@ -94,51 +94,69 @@
   /**
    * Set the node's content.
    * */
-  function setContent(node, content) {
-    node._bfs_parent.replaceChild(doc.createTextNode(content), node);
+  function setContent(node, content, prefix, suffix) {
+    if (content.length > 0) {
+      var text_content = content;
+      if (prefix && suffix)
+        text_content = prefix + content + suffix;
+      node._bfs_parent.replaceChild(doc.createTextNode(text_content), node);
+    }
+    else
+      node._bfs_parent.removeChild(node);
   }
 
   /**
    * Process a node in the DOM tree.
    * */
   function processNode(node) {
-    if (node.tagName !== 'BR' && node.tagName !== 'HR' && node.tagName !== 'IMG' && node.innerHTML.length === 0)
-      setContent(node, '');
-    else if (node.tagName === 'P' || node.tagName === 'DIV')
+    if (node.tagName === 'P' || node.tagName === 'DIV')
       setContent(node, '\n\n' + node.innerHTML + '\n');
     else if (node.tagName === 'BR')
       setContent(node, '\n\n');
     else if (node.tagName === 'HR')
       setContent(node, '\n***\n');
     else if (node.tagName === 'H1')
-      setContent(node, '\n# ' + nltrim(node.innerHTML) + '\n');
-    else if (node.tagName === 'H2')
-      setContent(node, '\n## ' + nltrim(node.innerHTML) + '\n');
+      setContent(node, nltrim(node.innerHTML), '\n# ', '\n');
+    else if (node.tagName === 'H2') 
+      setContent(node, nltrim(node.innerHTML), '\n## ', '\n');
     else if (node.tagName === 'H3')
-      setContent(node, '\n### ' + nltrim(node.innerHTML) + '\n');
-    else if (node.tagName === 'H4')
-      setContent(node, '\n#### ' + nltrim(node.innerHTML) + '\n');
-    else if (node.tagName === 'H5')
-      setContent(node, '\n##### ' + nltrim(node.innerHTML) + '\n');
+      setContent(node, nltrim(node.innerHTML), '\n### ', '\n');
+    else if (node.tagName === 'H4') 
+      setContent(node, nltrim(node.innerHTML), '\n#### ', '\n');
+    else if (node.tagName === 'H5') 
+      setContent(node, nltrim(node.innerHTML), '\n##### ', '\n');
     else if (node.tagName === 'H6')
-      setContent(node, '\n###### ' + nltrim(node.innerHTML) + '\n');
+      setContent(node, nltrim(node.innerHTML), '\n###### ', '\n');
     else if (node.tagName === 'B' || node.tagName === 'STRONG')
-      setContent(node, '**' + nltrim(node.innerHTML) + '**');
+      setContent(node, nltrim(node.innerHTML), '**', '**');
     else if (node.tagName === 'I' || node.tagName === 'EM')
-      setContent(node, '_' + nltrim(node.innerHTML) + '_');
-    else if (node.tagName === 'A')
-      setContent(node, '[' + nltrim(node.innerHTML) + '](' + nltrim(node.href) + (node.title ? ' "' + nltrim(node.title) + '"' : '') + ')');
-    else if (node.tagName === 'IMG')
-      setContent(node, '![' + (node.alt ? nltrim(node.alt) : '') + '](' + nltrim(node.src) + (node.title  ? ' "' + nltrim(node.title) + '"' : '') + ')');
-    else if (node.tagName === 'BLOCKQUOTE') 
-      node.outerHTML =  '\n\n' +  prefixBlock('> ', trim(node.textContent)) + '\n\n';
-    else if (node.tagName === 'UL' || node.tagName === 'OL') 
+      setContent(node, nltrim(node.innerHTML), '_', '_');
+    else if (node.tagName === 'A') {
+      var href = nltrim(node.href), text = nltrim(node.innerHTML) || href, title = nltrim(node.title);
+      if (href)
+        setContent(node, '[' + text + '](' + href + (title ? ' "' + title + '"' : '') + ')');
+      else
+        setContent(node, '');
+    } else if (node.tagName === 'IMG') {
+      var src = nltrim(node.src), alt = nltrim(node.alt), title = nltrim(node.title);
+      if (src)
+        setContent(node, '![' + alt + '](' + src  + (title  ? ' "' + title + '"' : '') + ')');
+      else
+        setContent(node, '');
+    } else if (node.tagName === 'BLOCKQUOTE') {
+      var content = trim(node.innerHTML);
+      // Cannot use setContent because '>' symbol gets translated.
+      if (content.length > 0)
+        node.outerHTML =  '\n\n' +  prefixBlock('> ', trim(node.innerHTML)) + '\n\n';
+      else
+        setContent(node, '');
+    } else if (node.tagName === 'UL' || node.tagName === 'OL') 
       setContent(node, '\n\n' + node.innerHTML + '\n\n');
     else if (node.tagName === 'CODE') {
       if (node._bfs_parent.tagName == 'PRE') 
         setContent(node, prefixBlock('    ', node.innerHTML) + '\n');
       else
-        setContent(node, '`' + nltrim(node.innerHTML) + '`');
+        setContent(node, nltrim(node.innerHTML), '`', '`');
     } else if (node.tagName === 'LI') {
       if (node._bfs_parent.tagName === 'OL') 
         setContent(node, '1. ' + trim(prefixBlock('    ', trim(node.innerHTML), true)) + '\n\n');
@@ -148,24 +166,34 @@
       setContent(node, node.innerHTML);
   }
 
-  function downshow(html) {
+  function downshow(html, options) {
     var root = doc.createElement('pre');
     root.innerHTML = html;
-    var elements = bfsOrder(root).reverse();
+    var nodes = bfsOrder(root).reverse();
 
-    for (var i = 0; i<elements.length; i++) {
-      processNode(elements[i]);
+    if (options && options.nodeParser) {
+      for (var i = 0; i<nodes.length; i++) {
+        var result = options.nodeParser(doc, nodes[i].cloeNode(true));
+        if (result === false)
+          processNode(nodes[i]);
+        else 
+          nodes[i]._bfs_parent.replaceChild(nodes[i], result);
+      }
+    } else {
+      for (var i = 0; i<nodes.length; i++) {
+        processNode(nodes[i]);
+      }
     }
 
     return trim(root.innerHTML)
       // replace &gt; for > in blockquotes
       .replace(/\n(&gt; )+/g, function (match) { return match.replace(/&gt;/g,'>'); })
       // remove empty lines between blockquotes
-      /* .replace(/(\n(?:> )+[^\n]*)\n+(\n(?:> )+)/g, "$1$2") */
+      .replace(/(\n(?:> )+[^\n]*)\n+(\n(?:> )+)/g, "$1\n$2")
       // remove empty blockquotes
-      /* .replace(/\n((?:> )+[ ]*\n)+/g, '\n') */
+      .replace(/\n((?:> )+[ ]*\n)+/g, '\n\n')
       // remove extra newlines
-      .replace(/\n\n\n+/g,'\n\n')+'\n';
+      .replace(/\n\n\n+/g,'\n\n');
   }
 
   try {
