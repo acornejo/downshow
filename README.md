@@ -49,6 +49,7 @@ Then include and use as at will in your own projects.
 ```js
 var downshow = require('downshow');
 console.log(downshow('Hello <b>world</b>!'));
+```
 
 ### Extending Markdown Syntax
 
