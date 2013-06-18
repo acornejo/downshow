@@ -138,9 +138,9 @@
       else
         setContent(node, '');
     } else if (node.tagName === 'IMG') {
-      var src = nltrim(node.src), alt = nltrim(node.alt), title = nltrim(node.title);
+      var src = nltrim(node.src), alt = nltrim(node.alt), caption = nltrim(node.title);
       if (src)
-        setContent(node, '![' + alt + '](' + src  + (title  ? ' "' + title + '"' : '') + ')');
+        setContent(node, '![' + alt + '](' + src  + (caption ? ' "' + caption + '"' : '') + ')');
       else
         setContent(node, '');
     } else if (node.tagName === 'BLOCKQUOTE') {
@@ -169,10 +169,10 @@
   function downshow(html, options) {
     var root = doc.createElement('pre');
     root.innerHTML = html;
-    var nodes = bfsOrder(root).reverse();
+    var nodes = bfsOrder(root).reverse(), i;
 
     if (options && options.nodeParser) {
-      for (var i = 0; i<nodes.length; i++) {
+      for (i = 0; i<nodes.length; i++) {
         var result = options.nodeParser(doc, nodes[i].cloneNode(true));
         if (result === false)
           processNode(nodes[i]);
@@ -180,7 +180,7 @@
           nodes[i]._bfs_parent.replaceChild(result, nodes[i]);
       }
     } else {
-      for (var i = 0; i<nodes.length; i++) {
+      for (i = 0; i<nodes.length; i++) {
         processNode(nodes[i]);
       }
     }
