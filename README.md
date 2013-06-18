@@ -1,4 +1,4 @@
-# Downshow
+# Downshow [![build status](https://secure.travis-ci.org/acornejo/downshow.png)](http://travis-ci.org/acornejo/downshow)
 
 A simple JavaScript library to convert HTML to markdown.
 
