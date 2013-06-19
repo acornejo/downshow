@@ -2,17 +2,14 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
-      files: ['index.js', 'Gruntfile.js', 'src/**/*.js', 'spec/**/*.js'],
-      options: {
-        browser: true
-      }
+      files: ['index.js', 'Gruntfile.js', 'src/**/*.js', 'spec/**/*.js']
     },
     uglify: {
       options: {
         banner: '/*! <= % pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
         report: 'gzip'
       },
-      build: {
+      downshow: {
         src: 'src/<%= pkg.name %>.js',
         dest: 'build/<%= pkg.name %>.min.js'
       }

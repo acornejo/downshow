@@ -83,19 +83,19 @@ describe("separator elements", function() {
 describe("lists", function() {
 	it("unordered list", function() {
 		var html = "<ul><li>item a</li><li>item b</li></ul>";
-		var md = "- item a\n\n- item b";
+		var md = "- item a\n- item b";
     expect(downshow(html)).toEqual(md);
 	});
 
 	it("ordered list", function() {
 		var html = "<ol><li>item a</li><li>item b</li></ol>";
-		var md = "1. item a\n\n1. item b";
+		var md = "1. item a\n1. item b";
     expect(downshow(html)).toEqual(md);
 	});
 	
 	it("nested lists", function() {
 		var html = "<ul><li>item a<ul><li>item aa</li><li>item ab</li></ul></li><li>item b</li></ul>";
-		var md = "- item a\n\n    - item aa\n\n    - item ab\n\n- item b";
+		var md = "- item a\n    - item aa\n    - item ab\n- item b";
     expect(downshow(html)).toEqual(md);
 	});
 });
@@ -196,21 +196,18 @@ describe("word spacing", function () {
     expect(downshow(html)).toEqual(md);
 	});
 
-  /*
-   * Normalize spacing?
-   *
-  it("headers", function() {
-		expect(downshow("<h1> lorem   ipsum  dolor   sit   amet  </h1>")).toMatch('# lorem ipsum dolor sit amet');
-		expect(downshow("<h2> lorem   ipsum  dolor   sit   amet  </h2>")).toMatch('## lorem ipsum dolor sit amet');
-		expect(downshow("<h3> lorem   ipsum  dolor   sit   amet  </h3>")).toMatch('### lorem ipsum dolor sit amet');
-		expect(downshow("<h4> lorem   ipsum  dolor   sit   amet  </h4>")).toMatch('#### lorem ipsum dolor sit amet');
-		expect(downshow("<h5> lorem   ipsum  dolor   sit   amet  </h5>")).toMatch('##### lorem ipsum dolor sit amet');
-		expect(downshow("<h6> lorem   ipsum  dolor   sit   amet  </h6>")).toMatch('###### lorem ipsum dolor sit amet');
+  xit("headers", function() {
+		expect(downshow("<h1> lorem   ipsum  dolor   sit   amet  </h1>")).toEqual('# lorem ipsum dolor sit amet');
+		expect(downshow("<h2> lorem   ipsum  dolor   sit   amet  </h2>")).toEqual('## lorem ipsum dolor sit amet');
+		expect(downshow("<h3> lorem   ipsum  dolor   sit   amet  </h3>")).toEqual('### lorem ipsum dolor sit amet');
+		expect(downshow("<h4> lorem   ipsum  dolor   sit   amet  </h4>")).toEqual('#### lorem ipsum dolor sit amet');
+		expect(downshow("<h5> lorem   ipsum  dolor   sit   amet  </h5>")).toEqual('##### lorem ipsum dolor sit amet');
+		expect(downshow("<h6> lorem   ipsum  dolor   sit   amet  </h6>")).toEqual('###### lorem ipsum dolor sit amet');
   });
 
-	it("span element", function() {
+	xit("span element", function() {
 		expect(downshow("<span>this is span element</span>")).toEqual("this is span element");
 		expect(downshow("before<span>this is span element</span>after")).toEqual("before this is span element after");
 		expect(downshow("before <span>this is span element</span> after")).toEqual("before this is span element after");
-	});*/
+	});
 });

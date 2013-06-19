@@ -16,12 +16,7 @@
  * console.log(downshow(document.getElementById('#yourid').innerHTML));
  *
  * TODO:
- *
- * - Lists are always paragraph mode. Figure out a way to handle non
- * paragraph lists AND paragraph list simultaneously and correctly. 
- *
  * - Fix extra newline problems without breaking anything.
- *
  * - Find a cleaner way to handle the ">" character in blockquotes.
  */
 
@@ -201,6 +196,8 @@
       .replace(/\n[ \t]*(?:\n[ \t]*)+\n/g,'\n\n')
       // remove trailing whitespace
       .replace(/\s\s*$/, '')
+      // convert lists to inline when not using paragraphs
+      .replace(/^([ \t]*(?:\d+\.|\+|\-|\*)[^\n]*)\n\n+(?=[ \t]*(\d+\.|\+|\-|\*)[^\n]*)/gm, "$1\n")
       // remove starting newlines
       .replace(/^\n\n*/, '');
   }
