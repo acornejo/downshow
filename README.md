@@ -6,13 +6,15 @@ This library has no external dependencies, and has been tested
 in Chrome, Safari and Firefox. It probably works with Internet Explorer,
 but your milage may vary.
 
-Downshow is **tiny!**, only 2.4kb minified and &lt; 1kb gzip'ed.
+Downshow is **tiny!**, only 3kb minified and 1kb gzip'ed.
 
 It relies on javascript's DOM to parse the input HTML and produce the markdown
-output.  In more detail, the DOM tree is processed in reverse breadth
-first search order, translating each supported Element to its markdown
-equivalent. Element attributes are ignored, and unsupported elements are
-stripped out.
+output.In more detail, the DOM tree of the input HTML is processed in reverse breadth
+first search order. Every supported HTML element is replaced with its markdown
+equivalent. Unsupported elements are stripped out and replaced by their
+sanitized text contents. All element attributes are ignored by the
+default node parser, but it is possible to extend the behavior through
+custom node parsers.
 
 The source code is released under the MIT license, and therefore places
 almost no restrictions on what you can do with it.
@@ -56,8 +58,8 @@ Which produces
 ### Extending Markdown Syntax
 
 By creating a custom node parser it is possible to change the way the
-HTML is processed and converted to markdown, or to extend the markdown
-syntax.
+HTML is processed and converted to markdown. Through custom node parsers
+it is also possible to extend the produced markdown syntax.
 
 To illustrate this, consider the following HTML fragment.
 
@@ -126,8 +128,11 @@ security considerations that arise when storing and manipulating raw
 HTML which was produced by an (untrusted) third party.
 
 For this purpose downshow will strip all HTML tags from its output and
-produce a safe subset of Markdown which contains no HTML markup. 
+produce a sanitized subset of Markdown which contains no HTML markup. 
 
 Using the nodeParser option it is possible to allow certain tags and
 attributes to be passed through to the markdown output. However, this
-will only work for toplevel elements.
+will only work for toplevel elements, and such a use is discouraged.
+
+If you need certain additional formatting in the produced markdown, we
+instead recommend that you extend the markdown syntax as shown above.
