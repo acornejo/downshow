@@ -29,8 +29,7 @@
    * Returns every element in root in their bfs traversal order.
    *
    * In the process it transforms any nested lists to conform to the w3c
-   * standard, see:
-   * http://www.w3.org/wiki/HTML_lists#Nesting_lists
+   * standard, see:  http://www.w3.org/wiki/HTML_lists#Nesting_lists
    */
   function bfsOrder(root) {
     var inqueue = [root], outqueue = [];
@@ -63,14 +62,22 @@
    * as well as removing repeated whitespace between words.
    */
   function trim(str) {
-    return str.replace(/^\s\s*/,'').replace(/\s\s*$/, '').replace(/([^\s]+)[ \t]+([^\s]+)/g, '$1 $2');
+    return str.replace(/^\s\s*/,'').replace(/\s\s*$/, '');
+  }
+
+  /**
+   * Remove whitespace and newlines from beginning and end of a sting,
+   * as well as removing repeated whitespace between words.
+   */
+  function strim(str) {
+    return str.replace(/[ ]{2,}/g, ' ').replace(/^\s\s*/,'').replace(/\s\s*$/, '');
   }
 
   /**
    * Remove all newlines and trims the resulting string.
    * */ 
   function nltrim(str) {
-    return trim(str.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n/g, ' '));
+    return str.replace(/\s{2,}/g, ' ').replace(/^\s\s*/,'').replace(/\s\s*$/, '');
   }
 
   /**
@@ -107,7 +114,7 @@
    * */
   function processNode(node) {
     if (node.tagName === 'P' || node.tagName === 'DIV')
-      setContent(node, '\n\n' + trim(node.innerHTML) + '\n\n');
+      setContent(node, '\n\n' + strim(node.innerHTML) + '\n\n');
     else if (node.tagName === 'BR')
       setContent(node, '\n\n');
     else if (node.tagName === 'HR')
@@ -149,6 +156,8 @@
         setContent(node, '');
     } else if (node.tagName === 'UL' || node.tagName === 'OL') 
       setContent(node, '\n\n' + node.innerHTML + '\n\n');
+    else if (node.tagName === 'PRE')
+      setContent(node, node.innerHTML);
     else if (node.tagName === 'CODE') {
       if (node._bfs_parent.tagName == 'PRE' && node._bfs_parent._bfs_root !== true) 
         setContent(node, prefixBlock('    ', node.innerHTML) + '\n');
@@ -164,7 +173,7 @@
       else
         setContent(node, '');
     } else 
-      setContent(node, node.innerHTML, ' ', ' ');
+      setContent(node, strim(node.innerHTML), ' ', ' ');
   }
 
   function downshow(html, options) {

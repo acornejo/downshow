@@ -143,7 +143,7 @@ describe("code formatting", function() {
     html += "</code></pre>";
 
     var md = "";
-    md += "    " + " void main(String[] args) {\n";
+    md += "    " + "void main(String[] args) {\n";
     md += "    " + "    System.out.println(\"Hello Markdown\");\n";
     md += "    " + "  }";
     
@@ -196,7 +196,7 @@ describe("word spacing", function () {
     expect(downshow(html)).toEqual(md);
   });
 
-  xit("headers", function() {
+  it("headers", function() {
     expect(downshow("<h1> lorem   ipsum  dolor   sit   amet  </h1>")).toEqual('# lorem ipsum dolor sit amet');
     expect(downshow("<h2> lorem   ipsum  dolor   sit   amet  </h2>")).toEqual('## lorem ipsum dolor sit amet');
     expect(downshow("<h3> lorem   ipsum  dolor   sit   amet  </h3>")).toEqual('### lorem ipsum dolor sit amet');
@@ -205,9 +205,9 @@ describe("word spacing", function () {
     expect(downshow("<h6> lorem   ipsum  dolor   sit   amet  </h6>")).toEqual('###### lorem ipsum dolor sit amet');
   });
 
-  xit("span element", function() {
-    expect(downshow("<span>this is span element</span>")).toEqual("this is span element");
-    expect(downshow("before<span>this is span element</span>after")).toEqual("before this is span element after");
-    expect(downshow("before <span>this is span element</span> after")).toEqual("before this is span element after");
-  });
+  // it("span element", function() {
+  //   expect(downshow("<span>this is span element</span>")).toEqual("this is span element");
+  //   expect(downshow("before<span>this is span element</span>after")).toEqual("before this is span element after");
+  //   expect(downshow("before <span>this is span element</span> after")).toEqual("before this is span element after");
+  // });
 });
