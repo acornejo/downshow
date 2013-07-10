@@ -16,8 +16,6 @@
  * console.log(downshow(document.getElementById('#yourid').innerHTML));
  *
  * TODO:
- * - Fix extra newline problems without breaking anything.
- * - Find a cleaner way to handle the ">" character in blockquotes.
  * - Remove extra whitespace between words in headers and other places.
  */
 
@@ -180,6 +178,7 @@
     var root = doc.createElement('pre');
     root.innerHTML = html;
     var nodes = bfsOrder(root).reverse(), i;
+    var text = '';
 
     if (options && options.nodeParser) {
       for (i = 0; i<nodes.length; i++) {
@@ -195,9 +194,11 @@
       }
     }
 
-    return root.innerHTML
-      // replace &gt; for > in blockquotes
-      .replace(/^(&gt; )+/gm, function (match) { return match.replace(/&gt;/g,'>'); })
+    for (i = 0; i<root.childNodes.length; i++) {
+      text += root.childNodes[i].nodeValue;
+    }
+
+    return text
       // remove empty lines between blockquotes
       .replace(/(\n(?:> )+[^\n]*)\n+(\n(?:> )+)/g, "$1\n$2")
       // remove empty blockquotes
@@ -227,3 +228,5 @@
     global.downshow = downshow;
   }
 }).call(this);
+
+// escape *, _, `, #, >, [jjjjjj
