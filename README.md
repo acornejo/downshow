@@ -9,12 +9,12 @@ but your milage may vary.
 Downshow is **tiny!**, only 3kb minified and &lt; 1kb gzip'ed.
 
 It relies on javascript's DOM to parse the input HTML and produce the markdown
-output.In more detail, the DOM tree of the input HTML is processed in reverse breadth
-first search order. Every supported HTML element is replaced with its markdown
-equivalent. Unsupported elements are stripped out and replaced by their
-sanitized text contents. All element attributes are ignored by the
-default node parser, but it is possible to extend the behavior through
-custom node parsers.
+output. In more detail, the DOM tree of the input HTML is processed in reverse breadth
+first search order (aka reverse level order traversal). Every supported
+HTML element is replaced with its markdown equivalent. Unsupported
+elements are stripped out and replaced by their sanitized text contents.
+All element attributes are ignored by the default node parser, but it is
+possible to override this behavior by providing custom node parsers.
 
 The source code is released under the MIT license, and therefore places
 almost no restrictions on what you can do with it.
@@ -36,7 +36,7 @@ Using downshow you can easily convert this HTML fragment to markdown:
 
 ```js
 var html_content = document.getElementById('content').innerHTML;
-var markdown = showdown(html_content);
+var markdown = downshow(html_content);
 console.log(markdown);
 ```
 
@@ -83,12 +83,13 @@ Underlined text
 More underlined text
 ```
 
-Since the vanilla markdown syntax does not support underlined text, the
-html tags were ignored and stripped from the output.
+Since the vanilla markdown syntax does not support underlined text,
+downshow ignored the underline tags and stripped them from the
+output.
 
-The next javascript fragment extends the markdown syntax to allow
-underline text by wrapping it with the $ character.
-
+The next javascript fragment defines a custom node parser that extends
+the markdown syntax to allow underline text by wrapping it with the $
+character. 
 
 ```js
 function nodeParser(doc, node) {
@@ -97,7 +98,7 @@ function nodeParser(doc, node) {
       underline = true;
   else if (node.tagName === 'SPAN') {
     var classlist = ' ' + node.className + ' ';
-    if (classlist.indexOf('underline') != -1) {
+    if (classlist.indexOf(' underline ') != -1) {
       underline = true;
     }
   }
@@ -111,7 +112,7 @@ To run downshow using the custom nodeParser we use:
 
     downshow(html_content, {nodeParser: nodeParser});
 
-The output now is:
+The output using the custom node parser is:
 
 ```md
 Regular text.
@@ -123,16 +124,18 @@ $More underlined text$
 
 ## Uses and Limitations
 
-Perhaps the main uses of converting HTML to markdown is to avoid the
+Perhaps the main uses of converting HTML to markdown is to reduce the
 security considerations that arise when storing and manipulating raw
 HTML which was produced by an (untrusted) third party.
 
-For this purpose downshow will strip all HTML tags from its output and
+For this purpose downshow strips all HTML tags from its output and
 produce a sanitized subset of Markdown which contains no HTML markup. 
 
 Using the nodeParser option it is possible to allow certain tags and
-attributes to be passed through to the markdown output. However, this
-will only work for toplevel elements, and such a use is discouraged.
+attributes to be passed through to the markdown output. This would only
+work for toplevel elements, and this usage is highly discouraged.
 
-If you need certain additional formatting in the produced markdown, we
-instead recommend that you extend the markdown syntax as shown above.
+If you need certain additional formatting in the produced markdown, it
+is instead recommended to extend the markdown syntax to support this,
+which can be done with custom node parsers as shown in the example
+above.
