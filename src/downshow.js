@@ -112,7 +112,7 @@
    * */
   function processNode(node) {
     if (node.tagName === 'P' || node.tagName === 'DIV')
-      setContent(node, '\n\n' + strim(node.innerHTML) + '\n\n');
+      setContent(node, '\n\n' + trim(node.innerHTML) + '\n\n');
     else if (node.tagName === 'BR')
       setContent(node, '\n\n');
     else if (node.tagName === 'HR')
@@ -228,5 +228,3 @@
     global.downshow = downshow;
   }
 }).call(this);
-
-// escape *, _, `, #, >, [jjjjjj

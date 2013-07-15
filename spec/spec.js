@@ -93,9 +93,15 @@ describe("lists", function() {
     expect(downshow(html)).toEqual(md);
   });
   
-  it("nested lists", function() {
+  it("2-level lists", function() {
     var html = "<ul><li>item a<ul><li>item aa</li><li>item ab</li></ul></li><li>item b</li></ul>";
     var md = "- item a\n    - item aa\n    - item ab\n- item b";
+    expect(downshow(html)).toEqual(md);
+  });
+
+  it("3-level lists", function() {
+    var html = "<ul><li>item a<ul><li>item aa</li><li>item ab<ul><li>item aba</li><li>item abb</li></ul></li></ul></li><li>item b</li></ul>";
+    var md = "- item a\n    - item aa\n    - item ab\n        - item aba\n        - item abb\n- item b";
     expect(downshow(html)).toEqual(md);
   });
 });
