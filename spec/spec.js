@@ -149,7 +149,7 @@ describe("code formatting", function() {
     html += "</code></pre>";
 
     var md = "";
-    md += "    " + "void main(String[] args) {\n";
+    md += "    " + "  void main(String[] args) {\n";
     md += "    " + "    System.out.println(\"Hello Markdown\");\n";
     md += "    " + "  }";
     
@@ -211,9 +211,10 @@ describe("word spacing", function () {
     expect(downshow("<h6> lorem   ipsum  dolor   sit   amet  </h6>")).toEqual('###### lorem ipsum dolor sit amet');
   });
 
-  xit("span element", function() {
+  it("span element", function() {
     expect(downshow("<span>this is span element</span>")).toEqual("this is span element");
-    expect(downshow("before<span>this is span element</span>after")).toEqual("before this is span element after");
+    expect(downshow("before<span>this is span element</span>after")).toEqual("beforethis is span elementafter");
     expect(downshow("before <span>this is span element</span> after")).toEqual("before this is span element after");
+    expect(downshow("before <span> this is span element </span> after")).toEqual("before this is span element after");
   });
 });

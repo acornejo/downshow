@@ -31,14 +31,14 @@
    */
   function bfsOrder(root) {
     var inqueue = [root], outqueue = [];
-    root._bfs_root = true;
+    root._bfs_parent = null;
     while (inqueue.length > 0) {
       var elem = inqueue.shift();
       outqueue.push(elem);
       var children = elem.childNodes;
       var liParent = null;
       for (var i=0 ; i<children.length; i++) {
-        if (children[i].nodeType == 1) {
+        if (children[i].nodeType == 1) {// element node
           if (children[i].tagName === 'LI') {
             liParent = children[i];
           } else if ((children[i].tagName === 'UL' || children[i].tagName === 'OL') && liParent) {
@@ -56,24 +56,15 @@
   }
 
   /**
-   * Remove whitespace and newlines from beginning and end of a sting,
-   * as well as removing repeated whitespace between words.
+   * Remove whitespace and newlines from beginning and end of a sting.
    */
   function trim(str) {
     return str.replace(/^\s\s*/,'').replace(/\s\s*$/, '');
   }
 
   /**
-   * Remove whitespace and newlines from beginning and end of a sting,
-   * as well as removing repeated whitespace between words.
-   */
-  function strim(str) {
-    return str.replace(/[ ]{2,}/g, ' ').replace(/^\s\s*/,'').replace(/\s\s*$/, '');
-  }
-
-  /**
    * Remove all newlines and trims the resulting string.
-   * */ 
+   */ 
   function nltrim(str) {
     return str.replace(/\s{2,}/g, ' ').replace(/^\s\s*/,'').replace(/\s\s*$/, '');
   }
@@ -82,7 +73,7 @@
    * Add prefix to the beginning of every line in block.
    */
   function prefixBlock(prefix, block, skipEmpty) {
-    var lines = block.replace(/^\s+|\s+$/g,'').split('\n');
+    var lines = block.split('\n');
     for (var i =0; i<lines.length; i++) {
       // Do not prefix empty lines
       if (lines[i].length === 0 && skipEmpty === true)
@@ -95,47 +86,67 @@
 
   /**
    * Set the node's content.
-   * */
+   */
   function setContent(node, content, prefix, suffix) {
     if (content.length > 0) {
-      var text_content = content;
       if (prefix && suffix)
-        text_content = prefix + content + suffix;
-      node._bfs_parent.replaceChild(doc.createTextNode(text_content), node);
+        node._bfs_text = prefix + content + suffix;
+      else
+        node._bfs_text = content;
+    } else
+      node._bfs_text = '';
+  }
+
+  /**
+   * Get a node's content.
+   */
+  function getContent(node) {
+    var text = '', atom;
+    for (var i = 0; i<node.childNodes.length; i++) {
+      if (node.childNodes[i].nodeType === 1) {
+        atom = node.childNodes[i]._bfs_text;
+      } else if (node.childNodes[i].nodeType === 3) {
+        atom = node.childNodes[i].data;
+      } else
+        continue;
+      if (text.match(/[\t ]+$/) && atom.match(/^[\t ]+/)) {
+        text = text.replace(/[\t ]+$/,'') + ' ' + atom.replace(/^[\t ]+/, '');
+      } else {
+        text = text + atom;
+      }
     }
-    else
-      node._bfs_parent.removeChild(node);
+    return text;
   }
 
   /**
    * Process a node in the DOM tree.
    * */
   function processNode(node) {
-    if (node.tagName === 'P' || node.tagName === 'DIV')
-      setContent(node, '\n\n' + trim(node.innerHTML) + '\n\n');
+    if (node.tagName === 'P' || node.tagName === 'DIV' || node.tagName === 'UL' || node.tagName === 'OL' || node.tagName === 'PRE')
+      setContent(node, getContent(node), '\n\n', '\n\n');
     else if (node.tagName === 'BR')
       setContent(node, '\n\n');
     else if (node.tagName === 'HR')
       setContent(node, '\n***\n');
     else if (node.tagName === 'H1')
-      setContent(node, nltrim(node.innerHTML), '\n# ', '\n');
+      setContent(node, nltrim(getContent(node)), '\n# ', '\n');
     else if (node.tagName === 'H2') 
-      setContent(node, nltrim(node.innerHTML), '\n## ', '\n');
+      setContent(node, nltrim(getContent(node)), '\n## ', '\n');
     else if (node.tagName === 'H3')
-      setContent(node, nltrim(node.innerHTML), '\n### ', '\n');
+      setContent(node, nltrim(getContent(node)), '\n### ', '\n');
     else if (node.tagName === 'H4') 
-      setContent(node, nltrim(node.innerHTML), '\n#### ', '\n');
+      setContent(node, nltrim(getContent(node)), '\n#### ', '\n');
     else if (node.tagName === 'H5') 
-      setContent(node, nltrim(node.innerHTML), '\n##### ', '\n');
+      setContent(node, nltrim(getContent(node)), '\n##### ', '\n');
     else if (node.tagName === 'H6')
-      setContent(node, nltrim(node.innerHTML), '\n###### ', '\n');
+      setContent(node, nltrim(getContent(node)), '\n###### ', '\n');
     else if (node.tagName === 'B' || node.tagName === 'STRONG')
-      setContent(node, nltrim(node.innerHTML), '**', '**');
+      setContent(node, nltrim(getContent(node)), '**', '**');
     else if (node.tagName === 'I' || node.tagName === 'EM')
-      setContent(node, nltrim(node.innerHTML), '_', '_');
+      setContent(node, nltrim(getContent(node)), '_', '_');
     else if (node.tagName === 'A') {
-      var href = nltrim(node.href), text = nltrim(node.innerHTML) || href, title = nltrim(node.title);
-      if (href)
+      var href = nltrim(node.href), text = nltrim(getContent(node)) || href, title = nltrim(node.title);
+      if (href.length > 0)
         setContent(node, '[' + text + '](' + href + (title ? ' "' + title + '"' : '') + ')');
       else
         setContent(node, '');
@@ -146,39 +157,33 @@
       else
         setContent(node, '');
     } else if (node.tagName === 'BLOCKQUOTE') {
-      var block_content = trim(node.innerHTML);
-      // Cannot use setContent because '>' symbol gets translated.
+      var block_content = getContent(node);
       if (block_content.length > 0)
-        node.outerHTML =  '\n\n' +  prefixBlock('> ', block_content) + '\n\n';
+        setContent(node, prefixBlock('> ', block_content), '\n\n', '\n\n');
       else
         setContent(node, '');
-    } else if (node.tagName === 'UL' || node.tagName === 'OL') 
-      setContent(node, '\n\n' + node.innerHTML + '\n\n');
-    else if (node.tagName === 'PRE')
-      setContent(node, node.innerHTML);
-    else if (node.tagName === 'CODE') {
-      if (node._bfs_parent.tagName == 'PRE' && node._bfs_parent._bfs_root !== true) 
-        setContent(node, prefixBlock('    ', node.innerHTML) + '\n');
+    } else if (node.tagName === 'CODE') {
+      if (node._bfs_parent.tagName === 'PRE' && node._bfs_parent._bfs_parent !== null)
+        setContent(node, prefixBlock('    ', getContent(node)));
       else
-        setContent(node, nltrim(node.innerHTML), '`', '`');
+        setContent(node, nltrim(getContent(node)), '`', '`');
     } else if (node.tagName === 'LI') {
-      var list_content = trim(node.innerHTML);
+      var list_content = getContent(node);
       if (list_content.length > 0)
         if (node._bfs_parent.tagName === 'OL') 
-          setContent(node, '1. ' + trim(prefixBlock('    ', list_content, true)) + '\n\n');
+          setContent(node, trim(prefixBlock('    ', list_content, true)), '1. ', '\n\n');
         else
-          setContent(node, '- ' +  trim(prefixBlock('    ', list_content, true)) + '\n\n');
+          setContent(node, trim(prefixBlock('    ', list_content, true)), '- ', '\n\n');
       else
         setContent(node, '');
     } else 
-      setContent(node, strim(node.innerHTML), ' ', ' ');
+      setContent(node, getContent(node));
   }
 
   function downshow(html, options) {
     var root = doc.createElement('pre');
     root.innerHTML = html;
     var nodes = bfsOrder(root).reverse(), i;
-    var text = '';
 
     if (options && options.nodeParser) {
       for (i = 0; i<nodes.length; i++) {
@@ -186,7 +191,7 @@
         if (result === false)
           processNode(nodes[i]);
         else 
-          nodes[i]._bfs_parent.replaceChild(result, nodes[i]);
+          setContent(nodes[i], result);
       }
     } else {
       for (i = 0; i<nodes.length; i++) {
@@ -194,11 +199,7 @@
       }
     }
 
-    for (i = 0; i<root.childNodes.length; i++) {
-      text += root.childNodes[i].nodeValue;
-    }
-
-    return text
+    return getContent(root)
       // remove empty lines between blockquotes
       .replace(/(\n(?:> )+[^\n]*)\n+(\n(?:> )+)/g, "$1\n$2")
       // remove empty blockquotes
