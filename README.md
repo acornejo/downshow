@@ -6,15 +6,18 @@ This library has no external dependencies, and has been tested
 in Chrome, Safari and Firefox. It probably works with Internet Explorer,
 but your milage may vary.
 
-Downshow is **tiny!**, only 3kb minified and &lt; 1kb gzip'ed.
+Downshow is **tiny!**, only 4.5kb minified and 1.5kb gzip'ed.
 
-It relies on javascript's DOM to parse the input HTML and produce the markdown
-output. In more detail, the DOM tree of the input HTML is processed in reverse breadth
+It relies on the browsers DOM engine to parse the input HTML and produce
+the markdown output. When a browser DOM engine is not available (i.e.
+when running in the server on node.js) it fallsback on jsdom. 
+In more detail, the DOM tree of the input HTML is processed in reverse breadth
 first search order (aka reverse level order traversal). Every supported
-HTML element is replaced with its markdown equivalent. Unsupported
+HTML element is replaced with its markdown equivalent, and unsupported
 elements are stripped out and replaced by their sanitized text contents.
-All element attributes are ignored by the default node parser, but it is
-possible to override this behavior by providing custom node parsers.
+The default node parser ignores all element attributes and strips all
+HTML tags from the output (however this behavior can be overriden
+through custom node parsers).
 
 The source code is released under the MIT license, and therefore places
 almost no restrictions on what you can do with it.
@@ -38,6 +41,18 @@ Using downshow you can easily convert this HTML fragment to markdown:
 var html_content = document.getElementById('content').innerHTML;
 var markdown = downshow(html_content);
 console.log(markdown);
+```
+
+Which should produce:
+
+```md
+# Downshow
+
+A simple JavaScript library to convert HTML to markdown
+
+## Quick Start
+
+That was **very** simple right?
 ```
 
 ### Server-side usage
@@ -124,18 +139,22 @@ $More underlined text$
 
 ## Uses and Limitations
 
-Perhaps the main uses of converting HTML to markdown is to reduce the
-security considerations that arise when storing and manipulating raw
-HTML which was produced by an (untrusted) third party.
+The main use of converting HTML to markdown is to reduce the security
+considerations that arise when storing and manipulating raw HTML which
+was produced by an (untrusted) third party.
 
 For this purpose downshow strips all HTML tags from its output and
-produce a sanitized subset of Markdown which contains no HTML markup. 
+produce a sanitized subset of Markdown which contains no HTML markup. In
+this respect, downshow does not support letting `raw` HTML tags into the
+markup.
 
 Using the nodeParser option it is possible to allow certain tags and
-attributes to be passed through to the markdown output. This would only
-work for toplevel elements, and this usage is highly discouraged.
+attributes to be passed through to the markdown output, although this
+would only work for toplevel elements. Custom nodeParsers are not meant
+to be used to let HTML go through, and this usage is highly discouraged
+(and unsafe).
 
 If you need certain additional formatting in the produced markdown, it
 is instead recommended to extend the markdown syntax to support this,
-which can be done with custom node parsers as shown in the example
-above.
+which can be done with custom node parsers as shown in the underline
+example above.

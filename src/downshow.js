@@ -13,15 +13,22 @@
  *
  * Basic Usage:
  *
- * console.log(downshow(document.getElementById('#yourid').innerHTML));
+ * downshow(document.getElementById('#yourid').innerHTML);
  *
  * TODO:
  * - Remove extra whitespace between words in headers and other places.
  */
 
 (function () {
-  var global = this;
   var doc;
+
+  // Use browser DOM with jsdom as a fallback (for node.js)
+  try {
+    doc = document;
+  } catch(e) {
+    var jsdom = require("jsdom").jsdom;
+    doc = jsdom("<html><head></head><body></body></html>");
+  }
 
   /**
    * Returns every element in root in their bfs traversal order.
@@ -145,13 +152,13 @@
     else if (node.tagName === 'I' || node.tagName === 'EM')
       setContent(node, nltrim(getContent(node)), '_', '_');
     else if (node.tagName === 'A') {
-      var href = nltrim(node.href), text = nltrim(getContent(node)) || href, title = nltrim(node.title);
+      var href = node.href ? nltrim(node.href) : '', text = nltrim(getContent(node)) || href, title = node.title ? nltrim(node.title) : '';
       if (href.length > 0)
         setContent(node, '[' + text + '](' + href + (title ? ' "' + title + '"' : '') + ')');
       else
         setContent(node, '');
     } else if (node.tagName === 'IMG') {
-      var src = nltrim(node.src), alt = nltrim(node.alt), caption = nltrim(node.title);
+      var src = node.src ? nltrim(node.src) : '', alt = node.alt ? nltrim(node.alt) : '', caption = node.title ? nltrim(node.title) : '';
       if (src.length > 0)
         setContent(node, '![' + alt + '](' + src  + (caption ? ' "' + caption + '"' : '') + ')');
       else
@@ -214,18 +221,11 @@
       .replace(/^\n\n*/, '');
   }
 
-  try {
-    doc = document;
-  } catch(e) {
-    var jsdom = require("jsdom").jsdom;
-    doc = jsdom("<html><head></head><body></body></html>");
-  }
-  if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-      exports = module.exports = downshow;
-    }
-    exports.downshow = downshow;
-  } else {
-    global.downshow = downshow;
-  }
-}).call(this);
+  // Export for use in server and client.
+  if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
+    module.exports = downshow;
+  else if (typeof define === 'function' && define.amd)
+    define([], function () {return downshow;});
+  else
+    window.downshow = downshow;
+})();
