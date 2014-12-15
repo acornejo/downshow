@@ -221,3 +221,9 @@ describe("word spacing", function () {
     expect(downshow("before <span> this is span element </span> after")).to.equal("before this is span element after");
   });
 });
+
+describe("paragraphs", function () {
+  it("should separate paragraphs with inline markup", function () {
+    expect(downshow("<p><b>1</b></p><p><b>2</b></p>")).to.equal("**1**\n\n**2**");
+  });
+});
