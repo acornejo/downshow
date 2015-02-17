@@ -216,7 +216,7 @@
       // remove trailing whitespace
       .replace(/\s\s*$/, '')
       // convert lists to inline when not using paragraphs
-      .replace(/^([ \t]*(?:\d+\.|\+|\-|\*)[^\n]*)\n\n+(?=[ \t]*(?:\d+\.|\+|\-|\*)[^\n]*)/gm, "$1\n")
+      .replace(/^([ \t]*(?:\d+\.|\+|\-)[^\n]*)\n\n+(?=[ \t]*(?:\d+\.|\+|\-|\*)[^\n]*)/gm, "$1\n")
       // remove starting newlines
       .replace(/^\n\n*/, '');
   }
