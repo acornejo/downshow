@@ -158,7 +158,7 @@
       else
         setContent(node, '');
     } else if (node.tagName === 'IMG') {
-      var src = node.src ? nltrim(node.src) : '', alt = node.alt ? nltrim(node.alt) : '', caption = node.title ? nltrim(node.title) : '';
+      var src = node.getAttribute('src') ? nltrim(node.getAttribute('src')) : '', alt = node.alt ? nltrim(node.alt) : '', caption = node.title ? nltrim(node.title) : '';
       if (src.length > 0)
         setContent(node, '![' + alt + '](' + src  + (caption ? ' "' + caption + '"' : '') + ')');
       else
